@@ -1,159 +1,138 @@
-"""
-Basic generator functions for data fields.
-"""
 import random
 import uuid
-import datetime
-from typing import Dict, Any, List, Optional, Union, Callable
-import asyncio
-import logging
+from typing import Dict, Any, Union, List, Optional
 
-logger = logging.getLogger("generators.basic")
+def generate_static(config: Dict[str, Any], state: Dict[str, Any], count: int) -> Any:
+    """
+    Generate a static value.
+    
+    Args:
+        config: Generator configuration
+        state: Current state
+        count: Current record count
+        
+    Returns:
+        Static value
+    """
+    return config.get("value")
 
-# Type aliases
-StateDict = Dict[str, Any]
-RecordDict = Dict[str, Any]
-
-
-async def static_generator(
-    value: Any, 
-    state: Optional[StateDict] = None, 
-    record: Optional[RecordDict] = None, 
-    **kwargs
-) -> Any:
-    """Generate a static value."""
-    return value
-
-
-async def random_int_generator(
-    min_val: int = 0, 
-    max_val: int = 100, 
-    state: Optional[StateDict] = None, 
-    record: Optional[RecordDict] = None, 
-    **kwargs
-) -> int:
-    """Generate a random integer"""
+def generate_random_int(config: Dict[str, Any], state: Dict[str, Any], count: int) -> int:
+    """
+    Generate a random integer.
+    
+    Args:
+        config: Generator configuration
+        state: Current state
+        count: Current record count
+        
+    Returns:
+        Random integer
+    """
+    min_val = config.get("min", 0)
+    max_val = config.get("max", 100)
     return random.randint(min_val, max_val)
 
-
-async def random_float_generator(
-    min_val: float = 0.0, 
-    max_val: float = 1.0, 
-    precision: int = 4, 
-    state: Optional[StateDict] = None, 
-    record: Optional[RecordDict] = None, 
-    **kwargs
-) -> float:
-    """Generate a random float"""
+def generate_random_float(config: Dict[str, Any], state: Dict[str, Any], count: int) -> float:
+    """
+    Generate a random float.
+    
+    Args:
+        config: Generator configuration
+        state: Current state
+        count: Current record count
+        
+    Returns:
+        Random float
+    """
+    min_val = config.get("min", 0.0)
+    max_val = config.get("max", 1.0)
+    precision = config.get("precision", 4)
+    
     value = random.uniform(min_val, max_val)
     return round(value, precision)
 
-
-async def sequence_generator(
-    start: int = 0, 
-    step: int = 1, 
-    state_key: str = "_sequence", 
-    state: Optional[StateDict] = None, 
-    record: Optional[RecordDict] = None, 
-    **kwargs
-) -> int:
-    """Generate a sequence of integers.
+def generate_sequence_int(config: Dict[str, Any], state: Dict[str, Any], count: int) -> int:
     """
-    if state is None:
-        state = {}
+    Generate a sequence integer.
     
-    # Initialize sequence if not exists
-    full_key = f"{state_key}"
-    if full_key not in state:
-        state[full_key] = start
+    Args:
+        config: Generator configuration
+        state: Current state
+        count: Current record count
+        
+    Returns:
+        Sequence integer
+    """
+    # Get the sequence parameters
+    start = config.get("start", 0)
+    step = config.get("step", 1)
+    
+    # Get or create sequence state
+    sequence_name = config.get("name", "_default")
+    state_key = f"sequence_{sequence_name}"
+    
+    if state_key not in state:
+        # Initialize the sequence
+        state[state_key] = start
         return start
     
-    # Get current value and update for next time
-    current = state[full_key]
-    state[full_key] += step
+    # Get current value
+    current = state[state_key]
+    
+    # Update state for next time
+    state[state_key] = current + step
+    
     return current
 
-
-async def timestamp_generator(
-    format: str = "iso", 
-    timezone: str = "utc", 
-    state: Optional[StateDict] = None, 
-    record: Optional[RecordDict] = None, 
-    **kwargs
-) -> Union[str, int]:
-    """Generate a timestamp. """
-    now = datetime.datetime.now(datetime.timezone.utc)
+def generate_choice(config: Dict[str, Any], state: Dict[str, Any], count: int) -> Any:
+    """
+    Generate a value from a list of choices.
     
-    if format == "epoch":
-        return int(now.timestamp())
-    elif format == "iso":
-        return now.isoformat()
-    else:
-        # Custom format
-        try:
-            return now.strftime(format)
-        except ValueError as e:
-            logger.error(f"Invalid timestamp format: {format}, using ISO8601")
-            return now.isoformat()
-
-
-async def choice_generator(
-    values: List[Any],
-    weights: Optional[List[float]] = None,
-    state: Optional[StateDict] = None, 
-    record: Optional[RecordDict] = None, 
-    **kwargs
-) -> Any:
-    """Generate a value from a list of choices."""
-    return random.choices(values, weights=weights, k=1)[0]
-
-
-async def uuid_generator(
-    state: Optional[StateDict] = None, 
-    record: Optional[RecordDict] = None, 
-    **kwargs
-) -> str:
-    """Generate a UUID."""
-    return str(uuid.uuid4())
-
-
-async def gaussian_generator(
-    mean: float = 0.0, 
-    stddev: float = 1.0, 
-    precision: int = 4, 
-    state: Optional[StateDict] = None, 
-    record: Optional[RecordDict] = None, 
-    **kwargs
-) -> float:
-    """Generate a value from a Gaussian distribution.
+    Args:
+        config: Generator configuration
+        state: Current state
+        count: Current record count
+        
+    Returns:
+        Selected value
     """
-    value = random.gauss(mean, stddev)
-    return round(value, precision)
-
-
-async def dependent_generator(
-    field: str,
-    func: Union[str, Callable],
-    state: Optional[StateDict] = None, 
-    record: Optional[RecordDict] = None, 
-    **kwargs
-) -> Any:
-    """Generate a value dependent on another field.
-    """
-    if record is None or field not in record:
-        logger.error(f"Dependent field not found: {field}")
+    values = config.get("values", [])
+    weights = config.get("weights", None)
+    
+    if not values:
         return None
     
-    source_value = record[field]
+    return random.choices(values, weights=weights, k=1)[0]
+
+def generate_uuid(config: Dict[str, Any], state: Dict[str, Any], count: int) -> str:
+    """
+    Generate a UUID.
     
-    if isinstance(func, str):
-        # Convert string to function (use with caution!)
-        try:
-            func_obj = eval(func)
-            return func_obj(source_value)
-        except Exception as e:
-            logger.error(f"Error evaluating function '{func}': {e}")
-            return None
-    else:
-        # Assume func is callable
-        return func(source_value)
+    Args:
+        config: Generator configuration
+        state: Current state
+        count: Current record count
+        
+    Returns:
+        UUID string
+    """
+    return str(uuid.uuid4())
+
+def generate_gaussian(config: Dict[str, Any], state: Dict[str, Any], count: int) -> float:
+    """
+    Generate a value from a Gaussian (normal) distribution.
+    
+    Args:
+        config: Generator configuration
+        state: Current state
+        count: Current record count
+        
+    Returns:
+        Float from normal distribution
+    """
+    mean = config.get("mean", 0.0)
+    stddev = config.get("stddev", 1.0)
+    precision = config.get("precision", 4)
+    
+    value = random.normalvariate(mean, stddev)
+    return round(value, precision)
