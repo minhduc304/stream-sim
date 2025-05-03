@@ -1,0 +1,36 @@
+# Simulates stock price updates for multiple stocks
+
+streams:
+  stock_market:
+    schema:
+      symbol:
+        type: choice
+        values: ["AAPL", "GOOG", "MSFT", "AMZN", "TSLA"]
+      timestamp:
+        type: timestamp
+        format: iso
+      price:
+        type: stateful
+        state_key: "price_{symbol}"  # Dynamic state key based on symbol
+        initial: 100.0  # Starting price
+        update_func: "lambda price, count: round(price * (1 + random.uniform(-0.01, 0.01)), 2)"  # Random walk
+      volume:
+        type: gaussian
+        mean: 10000
+        stddev: 3000
+      change_pct:
+        type: dependent
+        field: "price"
+        func: "lambda price: round((price / 100.0 - 1) * 100, 2)"  # Percentage change from initial price
+    rate: 2.0  # Two updates per second
+    events:
+      - record:  # Market shock
+          change_pct: -5.0
+        probability: 0.01
+    outputs:
+      - type: stdout
+        format: json
+      - type: kafka
+        format: json
+        topic: "stock-updates"
+        bootstrap_servers: "kafka:9092"
