@@ -1,4 +1,4 @@
-# Data Stream Simulator
+# Stream Sim
 
 A configurable real-time data streaming simulator capable of generating realistic data streams for testing and development purposes.
 
@@ -6,7 +6,7 @@ A configurable real-time data streaming simulator capable of generating realisti
 
 - **Schema-based Data Generation**: Define your data structure and generate realistic values
 - **Multiple Output Formats**: Generate JSON, CSV and other formats
-- **Multiple Destinations**: Stream to files, stdout, Kafka, HTTP endpoints etc.
+- **Multiple Destinations**: Stream to files, stdout, Kafka. HTTP endpoints in the works
 - **Time Control**: Configure the rate of data generation and optional jitter
 - **Event Injection**: Insert predefined anomalies or events into the stream
 - **Stateful Generation**: Support for maintaining state between records
@@ -18,7 +18,7 @@ A configurable real-time data streaming simulator capable of generating realisti
 
 ```bash
 git clone https://github.com/minhduc304/stream-sim.git
-cd data-stream-simulator
+cd stream-sim
 pip install -e .
 ```
 
@@ -31,9 +31,9 @@ pip install -e ".[all]"
 ### With Docker
 
 ```bash
-git clone https://github.com/yourusername/data-stream-simulator.git
-cd data-stream-simulator
-docker build -t data-stream-simulator .
+git clone https://github.com/minhduc304/stream-sim.git
+cd stream-sim
+docker build -t stream-sim .
 ```
 
 ## Quick Start
@@ -67,13 +67,13 @@ streams:
 2. Run the simulator:
 
 ```bash
-data-stream-simulator --config your_config.yaml
+stream-sim --config your_config.yaml
 ```
 
 Or with Docker:
 
 ```bash
-docker run -v $(pwd)/your_config.yaml:/app/config.yaml data-stream-simulator
+docker run -v $(pwd)/your_config.yaml:/app/config.yaml stream-sim
 ```
 
 ## Configuration Reference
@@ -162,8 +162,8 @@ schema:
 - `stdout`: Console output
 - `file`: Write to a file
 - `kafka`: Send to Kafka topic
-- `http`: Send to HTTP endpoint
-- `mqtt`: Publish to MQTT topic
+- `http`: Send to HTTP endpoint (in the works)
+- `mqtt`: Publish to MQTT topic (in the works)
 
 ## Docker Compose
 
@@ -180,7 +180,6 @@ This will start the simulator and supporting services (Kafka, MQTT) as defined i
 Check the `examples/` directory for sample configurations:
 
 - `stock_market.yaml`: Stock price updates
-- `web_traffic.yaml`: Web server logs simulation
 
 ## License
 
