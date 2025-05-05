@@ -4,12 +4,12 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "data-stream-simulator"
+name = "stream-sim"
 version = "0.1.0"
 description = "A configurable real-time data streaming simulator"
 readme = "README.md"
 authors = [
-    {name = "Data Stream Simulator Team"}
+    {name = "minhduc304"}
 ]
 license = {text = "MIT"}
 classifiers = [
@@ -36,7 +36,7 @@ all = [
 ]
 
 [project.scripts]
-data-stream-simulator = "data_stream_simulator.__main__:main"
+stream-sim = "stream-sim.__main__:main"
 
 [tool.setuptools]
-packages = ["data_stream_simulator"]
+packages = ["stream-sim"]
