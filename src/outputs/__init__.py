@@ -4,6 +4,7 @@ from typing import Dict, Any
 from .stdout import StdoutConnector
 from .file import FileConnector
 from .kafka import KafkaConnector
+from .http import HttpConnector
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ CONNECTOR_TYPES = {
     "stdout": StdoutConnector,
     "file": FileConnector,
     "kafka": KafkaConnector,
+    "http": HttpConnector
 }
 
 def create_output_connector(config: Dict[str, Any]):

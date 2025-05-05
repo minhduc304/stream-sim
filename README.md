@@ -162,8 +162,9 @@ schema:
 - `stdout`: Console output
 - `file`: Write to a file
 - `kafka`: Send to Kafka topic
-- `http`: Send to HTTP endpoint (in the works)
+- `http`: Send to HTTP endpoint
 - `mqtt`: Publish to MQTT topic (in the works)
+- AND MORE!
 
 ## Docker Compose
 
