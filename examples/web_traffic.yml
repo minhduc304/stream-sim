@@ -1,0 +1,48 @@
+streams:
+  web_traffic:
+    schema:
+      client_ip:
+        type: faker
+        type: ipv4
+      timestamp:
+        type: timestamp
+        format: custom
+        custom_format: "%d/%b/%Y:%H:%M:%S %z"
+      method:
+        type: choice
+        values: ["GET", "POST", "PUT", "DELETE"]
+        weights: [0.7, 0.2, 0.05, 0.05]
+      path:
+        type: choice
+        values: ["/", "/about", "/products", "/contact", "/api/v1/users", "/api/v1/orders"]
+      status:
+        type: choice
+        values: [200, 301, 404, 500]
+        weights: [0.9, 0.04, 0.05, 0.01]
+      size:
+        type: random_int
+        min: 512
+        max: 10240
+      user_agent:
+        type: faker
+        type: user_agent
+    rate: 5.0  # 5 requests per second
+    jitter: 0.3  # Significant variation in timing
+    events:
+      - record:  # Server error
+          status: 500
+          size: 1024
+        probability: 0.02
+    outputs:
+      - type: stdout
+        format: csv
+      - type: file
+        format: csv
+        filename: "output/access.log"
+      - type: http
+        format: json
+        url: "http://localhost:8000/logs"
+        method: "POST"
+        headers:
+          Content-Type: "application/json"
+          API-Key: "simulator-key"
